@@ -19,6 +19,27 @@ var uiController = (function(){
         },
         getDOMstrings: function(){
             return DOMstrings;
+        },
+        addListItem: function(item, type){
+            // 1. orlogo zarlagiin elementiig aguulsan html iig beltgene.
+            var html, list;
+      if (type === "inc") {
+        list = ".income__list";
+        html =
+          '<div class="item clearfix" id="income-%id%"><div class="item__description">$$DESCRIPTION$$</div><div class="right clearfix"><div class="item__value">$$VALUE$$</div><div class="item__delete">            <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div>        </div></div>';
+      } else {
+        list = ".expenses__list";
+        html =
+          '<div class="item clearfix" id="expense-%id%"><div class="item__description">$$DESCRIPTION$$</div>          <div class="right clearfix"><div class="item__value">$$VALUE$$</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn">                <i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+      // Ð¢ÑÑ€ HTML Ð´Ð¾Ñ‚Ñ€Ð¾Ð¾ Ð¾Ñ€Ð»Ð¾Ð³Ð¾ Ð·Ð°Ñ€Ð»Ð°Ð³Ñ‹Ð½ ÑƒÑ‚Ð³ÑƒÑƒÐ´Ñ‹Ð³ REPLACE Ð°ÑˆÐ¸Ð³Ð»Ð°Ð¶ Ó©Ó©Ñ€Ñ‡Ð¸Ð»Ð¶
+      html = html.replace("%id%", item.id);
+      html = html.replace("$$DESCRIPTION$$", item.description);
+      html = html.replace("$$VALUE$$", item.value);
+     
+
+      // Ð‘ÑÐ»Ñ‚Ð³ÑÑÑÐ½ HTML ÑÑ DOM Ñ€ÑƒÑƒ Ñ…Ð¸Ð¹Ð¶ Ó©Ð³Ð½Ó©.
+      document.querySelector(list).insertAdjacentHTML("beforeend", html);
         }
     };
 
@@ -31,13 +52,13 @@ var financeController = (function(){
         this.id = id;
         this.description = description;
         this.value = value;
-      }
+      };
       
     var Expense = function(id, description, value){
         this.id = id;
         this.description = description;
         this.value = value;
-      }
+      };
 // private data
     var data = {
         items: {
@@ -53,7 +74,7 @@ var financeController = (function(){
         addItem: function(type, desc, val){
             var item, id;
 
-            if(data.items[type].length === 0) id = 1;
+            if(data.items[type].length === 0) {id = 1;}
             else{
                 id = data.items[type][data.items[type].length - 1].id + 1;
             }
@@ -65,6 +86,8 @@ var financeController = (function(){
             }
 
             data.items[type].push(item);
+
+            return item;
         },
         seeData: function(){
             return data;
@@ -82,9 +105,9 @@ var appController = (function(uiController, financeController){
         // 1. oruulah ogogdliig delgetsees olj avna.
         var input = uiController.getInput();
         // 2. olj avsan ogogdluudee sanhuugiin controllert damjuulan tend hadgalna.
-        financeController.addItem(input.type, input.description, input.value);
+        var item = financeController.addItem(input.type, input.description, input.value);
         // 3. olj avsan ogogdluudee web deeree tohiroh hesegt gargana.
-
+        uiController.addListItem(item, input.type);
         // 4. tosviig tootsoolno.
 
         // 5. etssiin uldegdel, tootsoog delgtetsend gargana.
