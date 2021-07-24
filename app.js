@@ -14,7 +14,7 @@ var uiController = (function(){
             return {
                 type: document.querySelector(DOMstrings.inputType).value,
                 description: document.querySelector(DOMstrings.inputDescription).value,
-                value: document.querySelector(DOMstrings.inputValue).value
+                value: parseInt(document.querySelector(DOMstrings.inputValue).value)
                 
 
             };
@@ -79,6 +79,16 @@ var financeController = (function(){
         this.description = description;
         this.value = value;
       };
+
+      var calculateTotal = function(type){
+        var sum = 0;  
+        data.items[type].forEach(function(el){
+            sum = sum + el.value;
+          });
+          
+          data.totals[type] = sum;
+      }
+
 // private data
     var data = {
         items: {
@@ -88,9 +98,33 @@ var financeController = (function(){
         totals: {
           inc: 0,
           exp: 0
-        }
+        },
+        tusuv: 0,
+
+        huvi: 0
       };
     return {
+        tusuvTootsooloh: function(){
+            // niit orlogiin niilberiig tootsoolno
+            calculateTotal('inc');
+            // niit zarlagiin niilberiig tootsoolno
+            calculateTotal('exp');
+            // tusviig shineer tootsoolno
+            data.tusuv = data.totals.inc - data.totals.exp;
+            // orlogo zarlagiin huviig tootsoolno
+            data.huvi = Math.round(( data.totals.exp / data.totals.inc ) * 100);
+
+        },
+
+        tusviigAvah: function(){
+            return {
+                tusuv: data.tusuv,
+                huvi: data.huvi,
+                totalInc: data.totals.inc,
+                totalExp: data.totals.exp,
+            }
+        },
+
         addItem: function(type, desc, val){
             var item, id;
 
@@ -124,15 +158,28 @@ var appController = (function(uiController, financeController){
     var ctrlAddItem = function(){
         // 1. oruulah ogogdliig delgetsees olj avna.
         var input = uiController.getInput();
-        // 2. olj avsan ogogdluudee sanhuugiin controllert damjuulan tend hadgalna.
-        var item = financeController.addItem(input.type, input.description, input.value);
-        // 3. olj avsan ogogdluudee web deeree tohiroh hesegt gargana.
-        uiController.addListItem(item, input.type);
-        uiController.clearFields();
 
-        // 4. tosviig tootsoolno.
+        if(input.description !== "" && input.value !== ""){
+            // 2. olj avsan ogogdluudee sanhuugiin controllert damjuulan tend hadgalna.
+        
+            var item = financeController.addItem(input.type, input.description, input.value);
 
-        // 5. etssiin uldegdel, tootsoog delgtetsend gargana.
+            // 3. olj avsan ogogdluudee web deeree tohiroh hesegt gargana.
+            uiController.addListItem(item, input.type);
+            uiController.clearFields();
+
+            // 4. tosviig tootsoolno.
+            financeController.tusuvTootsooloh();
+
+            // 5. etssiin uldegdel, tootsoog delgtetsend gargana.
+            var tusuv = financeController.tusviigAvah();
+
+            // 6. tusviig tootsoog delgetsend gargana.
+            console.log(tusuv);
+        }
+        
+
+        
     };
 
     var setupEventListeners = function(){
